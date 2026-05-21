@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "alertmanager-graph-bridge values",
+  "type": "object",
+  "properties": {
+    "replicaCount": { "type": "integer", "minimum": 0 },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": { "type": "string" },
+        "tag": { "type": "string" },
+        "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
+      },
+      "required": ["repository"]
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "server": {
+          "type": "object",
+          "properties": {
+            "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+          }
+        },
+        "azure": {
+          "type": "object",
+          "properties": {
+            "tenantId": { "type": "string" },
+            "clientId": { "type": "string" }
+          }
+        },
+        "mail": {
+          "type": "object",
+          "properties": {
+            "from": { "type": "string" },
+            "to": { "type": "array", "items": { "type": "string" } },
+            "subjectPrefix": { "type": "string" },
+            "template": { "type": "string", "enum": ["modern", "classic"] },
+            "saveToSentItems": { "type": "boolean" }
+          }
+        },
+        "log": {
+          "type": "object",
+          "properties": {
+            "level": { "type": "string", "enum": ["debug", "info", "warn", "error"] },
+            "format": { "type": "string", "enum": ["json", "text"] }
+          }
+        }
+      }
+    },
+    "existingSecret": { "type": "string" },
+    "serviceMonitor": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" }
+      }
+    }
+  }
+}

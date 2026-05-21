@@ -1,0 +1,98 @@
+# Alertmanager for the cluster e2e test.
+#
+# It receives alerts from Prometheus, groups them, and dispatches a webhook to
+# the bridge with a bearer token -- so the run also exercises the bridge's
+# webhook authentication in the real chain. repeat_interval is deliberately
+# long so a single run produces exactly one e-mail.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager
+  namespace: agb-e2e
+data:
+  alertmanager.yml: |
+    global:
+      # Resolve absent alerts quickly so the resolved-notification test does
+      # not have to wait out the long default.
+      resolve_timeout: 1m
+    route:
+      receiver: graph-bridge
+      group_by: ['alertname']
+      group_wait: 5s
+      group_interval: 30s
+      repeat_interval: 24h
+    receivers:
+      - name: graph-bridge
+        webhook_configs:
+          - url: http://agb-alertmanager-graph-bridge:8080/api/v1/alerts
+            send_resolved: true
+            http_config:
+              authorization:
+                type: Bearer
+                credentials: cluster-e2e-bearer-token
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: agb-e2e
+  labels:
+    app: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      containers:
+        - name: alertmanager
+          # renovate: datasource=docker depName=prom/alertmanager
+          image: prom/alertmanager:v0.28.0
+          args:
+            - --config.file=/etc/alertmanager/alertmanager.yml
+            - --storage.path=/alertmanager
+          ports:
+            - name: http
+              containerPort: 9093
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alertmanager
+            - name: data
+              mountPath: /alertmanager
+      volumes:
+        - name: config
+          configMap:
+            name: alertmanager
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: agb-e2e
+  labels:
+    app: alertmanager
+spec:
+  selector:
+    app: alertmanager
+  ports:
+    - name: http
+      port: 9093
+      targetPort: http

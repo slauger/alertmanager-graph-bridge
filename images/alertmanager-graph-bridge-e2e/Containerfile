@@ -1,0 +1,33 @@
+# renovate: datasource=docker depName=golang
+ARG GO_VERSION=1.26
+# renovate: datasource=docker depName=registry.access.redhat.com/ubi9/ubi-minimal
+ARG UBI_VERSION=9.6
+
+FROM golang:${GO_VERSION} AS builder
+
+WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY internal/ ./internal/
+COPY test/ ./test/
+
+# Compile the e2e suite into a self-contained test binary.
+RUN CGO_ENABLED=0 go test -tags e2e -c -o /out/e2e.test ./test/e2e
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal:${UBI_VERSION}
+
+LABEL org.opencontainers.image.title="alertmanager-graph-bridge-e2e" \
+      org.opencontainers.image.description="End-to-end tests for alertmanager-graph-bridge against the live Microsoft Graph API" \
+      org.opencontainers.image.source="https://github.com/slauger/alertmanager-graph-bridge" \
+      org.opencontainers.image.licenses="Apache-2.0"
+
+COPY --from=builder /out/e2e.test /usr/local/bin/e2e.test
+
+USER 1001:0
+
+# Configuration is supplied at run time via AGB_AZURE_* and E2E_MAIL_*
+# environment variables.
+ENTRYPOINT ["/usr/local/bin/e2e.test"]
+CMD ["-test.v"]

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "alertmanager-graph-bridge.fullname" . }}
+  labels:
+    {{- include "alertmanager-graph-bridge.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    server:
+      port: {{ .Values.config.server.port }}
+    azure:
+      tenantId: {{ .Values.config.azure.tenantId | quote }}
+      clientId: {{ .Values.config.azure.clientId | quote }}
+    mail:
+      from: {{ .Values.config.mail.from | quote }}
+      to:
+        {{- range .Values.config.mail.to }}
+        - {{ . | quote }}
+        {{- end }}
+      subjectPrefix: {{ .Values.config.mail.subjectPrefix | quote }}
+      template: {{ .Values.config.mail.template | quote }}
+      saveToSentItems: {{ .Values.config.mail.saveToSentItems }}
+    log:
+      level: {{ .Values.config.log.level | quote }}
+      format: {{ .Values.config.log.format | quote }}

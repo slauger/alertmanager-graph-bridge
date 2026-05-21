@@ -1,0 +1,32 @@
+apiVersion: v2
+name: alertmanager-graph-bridge
+description: A lightweight bridge between Prometheus Alertmanager and the Microsoft Graph API
+type: application
+version: 0.0.0
+appVersion: "0.0.0"
+kubeVersion: ">=1.22.0"
+home: https://github.com/slauger/alertmanager-graph-bridge
+sources:
+  - https://github.com/slauger/alertmanager-graph-bridge
+maintainers:
+  - name: Simon Lauger
+    email: simon@lauger.de
+    url: https://lauger.de
+  - name: Bastian Sommerer
+    url: https://github.com/bsommerer
+keywords:
+  - alertmanager
+  - prometheus
+  - microsoft-graph
+  - email
+  - monitoring
+  - notifications
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/category: monitoring-logging
+  artifacthub.io/images: |
+    - name: alertmanager-graph-bridge
+      image: ghcr.io/slauger/alertmanager-graph-bridge:latest
+  artifacthub.io/links: |
+    - name: Source Code
+      url: https://github.com/slauger/alertmanager-graph-bridge

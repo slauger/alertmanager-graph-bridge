@@ -1,0 +1,90 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  semantic-release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      version: ${{ steps.semantic.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Create initial tag if missing
+        run: |
+          if [ -z "$(git tag -l)" ]; then
+            git tag v0.0.0
+          fi
+
+      - name: Run semantic-release
+        id: semantic
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx -p semantic-release@24 \
+            -p @semantic-release/commit-analyzer \
+            -p @semantic-release/release-notes-generator \
+            -p @semantic-release/exec \
+            -p @semantic-release/github \
+            semantic-release
+
+  container:
+    needs: semantic-release
+    if: needs.semantic-release.outputs.version != ''
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: ./.github/workflows/_container-build.yaml
+    with:
+      image: ghcr.io/slauger/alertmanager-graph-bridge
+      dockerfile: images/alertmanager-graph-bridge/Containerfile
+      context: .
+      push: true
+      tag: ${{ needs.semantic-release.outputs.version }}
+      sign: true
+
+  helm-release:
+    needs:
+      - semantic-release
+      - container
+    if: needs.semantic-release.outputs.version != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Package and push chart
+        env:
+          VERSION: ${{ needs.semantic-release.outputs.version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          helm package charts/alertmanager-graph-bridge \
+            --version "${VERSION}" --app-version "${VERSION}"
+          echo "${GITHUB_TOKEN}" | helm registry login ghcr.io \
+            --username "${{ github.actor }}" --password-stdin
+          helm push "alertmanager-graph-bridge-${VERSION}.tgz" \
+            oci://ghcr.io/slauger/charts

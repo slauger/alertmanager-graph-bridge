@@ -1,0 +1,144 @@
+# Prometheus for the cluster e2e test.
+#
+# It evaluates a single always-firing alert rule and forwards alerts to the
+# in-cluster Alertmanager. To exercise additional scenarios, add more entries
+# under the `rules.yml` key below -- that ConfigMap is the single, easy place
+# to define the alerts driven through the chain.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus
+  namespace: agb-e2e
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 5s
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+                - alertmanager:9093
+    rule_files:
+      - /etc/prometheus/rules.yml
+  rules.yml: |
+    groups:
+      - name: cluster-e2e
+        rules:
+          # vector(1) always returns a sample, so each of these alerts fires on
+          # the very first rule evaluation -- the simplest way to
+          # deterministically drive the Prometheus -> Alertmanager -> bridge ->
+          # Graph chain. Add further `alert:` entries here to exercise more
+          # scenarios.
+
+          # 1. Plain firing alert -> delivered to the default recipient.
+          - alert: E2EFiringAlert
+            expr: vector(1)
+            for: 0s
+            labels:
+              severity: critical
+            annotations:
+              summary: Synthetic firing alert for the cluster e2e test
+
+          # 2. Recipient override -> the email_to label must survive
+          #    Prometheus -> Alertmanager -> webhook so the bridge can route
+          #    the e-mail to a specific mailbox. hack/cluster-e2e.sh
+          #    substitutes the address for the __OVERRIDE_MAIL__ placeholder.
+          - alert: E2EOverrideAlert
+            expr: vector(1)
+            for: 0s
+            labels:
+              severity: warning
+              email_to: "__OVERRIDE_MAIL__"
+            annotations:
+              summary: Synthetic alert routed via the email_to label
+
+          # 3. Two alerts sharing one alertname -> Alertmanager groups them
+          #    into a single webhook, which the bridge delivers as one grouped
+          #    e-mail covering both alerts.
+          - alert: E2EGroupedAlert
+            expr: vector(1)
+            for: 0s
+            labels:
+              severity: warning
+              instance: node-a
+            annotations:
+              summary: Synthetic grouped alert (node-a)
+          - alert: E2EGroupedAlert
+            expr: vector(1)
+            for: 0s
+            labels:
+              severity: critical
+              instance: node-b
+            annotations:
+              summary: Synthetic grouped alert (node-b)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: agb-e2e
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          # renovate: datasource=docker depName=prom/prometheus
+          image: prom/prometheus:v3.1.0
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            # A short resend delay keeps the alert's EndsAt close, so a removed
+            # rule resolves quickly -- the resolved-notification test relies on
+            # this.
+            - --rules.alert.resend-delay=15s
+          ports:
+            - name: http
+              containerPort: 9090
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+            - name: data
+              mountPath: /prometheus
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: agb-e2e
+  labels:
+    app: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - name: http
+      port: 9090
+      targetPort: http

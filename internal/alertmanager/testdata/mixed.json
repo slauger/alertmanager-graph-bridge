@@ -1,0 +1,45 @@
+{
+  "version": "4",
+  "groupKey": "{}:{job=\"node\"}",
+  "truncatedAlerts": 0,
+  "status": "firing",
+  "receiver": "graph-bridge",
+  "groupLabels": { "job": "node" },
+  "commonLabels": { "job": "node" },
+  "commonAnnotations": {},
+  "externalURL": "http://alertmanager.example.com",
+  "alerts": [
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "HighMemoryUsage",
+        "instance": "node1:9100",
+        "severity": "warning",
+        "job": "node"
+      },
+      "annotations": {
+        "summary": "Memory usage above 85% on node1"
+      },
+      "startsAt": "2026-05-20T08:30:00.000Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://prometheus.example.com/graph?g0.expr=mem",
+      "fingerprint": "mem111firing"
+    },
+    {
+      "status": "resolved",
+      "labels": {
+        "alertname": "NodeDown",
+        "instance": "node2:9100",
+        "severity": "critical",
+        "job": "node"
+      },
+      "annotations": {
+        "summary": "Node node2 is back up"
+      },
+      "startsAt": "2026-05-20T06:00:00.000Z",
+      "endsAt": "2026-05-20T08:20:00.000Z",
+      "generatorURL": "http://prometheus.example.com/graph?g0.expr=up",
+      "fingerprint": "node222resolved"
+    }
+  ]
+}

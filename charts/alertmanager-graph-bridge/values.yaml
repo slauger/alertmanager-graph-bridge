@@ -1,0 +1,94 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/slauger/alertmanager-graph-bridge
+  # tag defaults to the chart appVersion when empty.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+# Application configuration rendered into a ConfigMap as config.yaml.
+config:
+  server:
+    port: 8080
+  azure:
+    tenantId: ""
+    clientId: ""
+  mail:
+    from: ""
+    to: []
+    subjectPrefix: "[alertmanager-graph-bridge]"
+    # E-mail layout: "modern" (card-based default) or "classic" (stock
+    # Alertmanager look).
+    template: modern
+    saveToSentItems: false
+  log:
+    level: info
+    format: json
+
+# Name of an existing Secret containing the keys clientSecret and (optionally)
+# bearerToken. When set, the chart does not create its own Secret.
+existingSecret: ""
+
+# Secret values injected as environment variables. Only used when
+# existingSecret is empty.
+secret:
+  clientSecret: ""
+  bearerToken: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: alertmanager-graph-bridge.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
+  labels: {}
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

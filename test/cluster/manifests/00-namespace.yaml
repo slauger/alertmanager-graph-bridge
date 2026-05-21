@@ -1,0 +1,8 @@
+# All cluster e2e workloads live in a dedicated namespace so the run can be
+# inspected (and torn down) in isolation.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agb-e2e
+  labels:
+    app.kubernetes.io/part-of: alertmanager-graph-bridge-cluster-e2e

@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars and adjust as needed.
+
+# Display name of the app registration created in Microsoft Entra.
+application_name = "alertmanager-graph-bridge-e2e"
+
+# Client secret lifetime (Go-style duration). 4320h is 180 days.
+secret_validity = "4320h"

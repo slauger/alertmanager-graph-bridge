@@ -1,0 +1,44 @@
+{
+  "version": "4",
+  "groupKey": "{}:{alertname=\"HighCPUUsage\"}",
+  "truncatedAlerts": 0,
+  "status": "firing",
+  "receiver": "graph-bridge",
+  "groupLabels": { "alertname": "HighCPUUsage" },
+  "commonLabels": { "alertname": "HighCPUUsage", "severity": "warning" },
+  "commonAnnotations": { "summary": "CPU usage is high" },
+  "externalURL": "http://alertmanager.example.com",
+  "alerts": [
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "HighCPUUsage",
+        "instance": "node1:9100",
+        "severity": "warning"
+      },
+      "annotations": {
+        "summary": "CPU usage above 90% on node1",
+        "description": "CPU has been above 90% for 5 minutes"
+      },
+      "startsAt": "2026-05-20T08:30:00.000Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://prometheus.example.com/graph?g0.expr=cpu",
+      "fingerprint": "abc123def456"
+    },
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "HighCPUUsage",
+        "instance": "node2:9100",
+        "severity": "warning"
+      },
+      "annotations": {
+        "summary": "CPU usage above 90% on node2"
+      },
+      "startsAt": "2026-05-20T08:31:00.000Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://prometheus.example.com/graph?g0.expr=cpu",
+      "fingerprint": "789ghi012jkl"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+version: "2"
+
+linters:
+  enable:
+    - misspell
+    - revive
+    - errorlint
+    - bodyclose
+    - gosec
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gosec
+          - bodyclose

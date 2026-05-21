@@ -1,0 +1,45 @@
+# alertmanager-graph-bridge configuration.
+#
+# Every value can also be supplied (or overridden) via an AGB_-prefixed
+# environment variable, for example AGB_AZURE_CLIENTSECRET. Environment
+# variables always take precedence over values in this file.
+
+server:
+  # Port the HTTP server listens on.
+  port: 8080
+  # Bearer token required on POST /api/v1/alerts. Leave empty to disable auth.
+  bearerToken: ""
+  # HTTP timeouts. writeTimeout must be greater than mail.sendTimeout.
+  readTimeout: 10s
+  writeTimeout: 30s
+  shutdownGrace: 15s
+
+azure:
+  # Microsoft Entra (Azure AD) tenant ID.
+  tenantId: ""
+  # Application (client) ID of the app registration.
+  clientId: ""
+  # Client secret. Prefer setting this via AGB_AZURE_CLIENTSECRET.
+  clientSecret: ""
+
+mail:
+  # Sender mailbox. The app registration needs Mail.Send permission for it.
+  from: "monitoring@example.com"
+  # Default recipients. Override per alert with the email_to label.
+  to:
+    - "ops-team@example.com"
+  # Prefix prepended to every e-mail subject.
+  subjectPrefix: "[alertmanager-graph-bridge]"
+  # E-mail layout: "modern" (card-based default) or "classic" (stock
+  # Prometheus Alertmanager look).
+  template: modern
+  # Whether Microsoft Graph should keep a copy in the sender's Sent Items.
+  saveToSentItems: false
+  # Overall budget for delivering the e-mails from one webhook.
+  sendTimeout: 20s
+
+log:
+  # Log level: debug, info, warn or error.
+  level: info
+  # Log format: json or text.
+  format: json

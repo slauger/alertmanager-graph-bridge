@@ -1,0 +1,9 @@
+# kind cluster configuration for the full-chain cluster e2e test.
+#
+# A single control-plane node keeps the cluster small and fast. The cluster is
+# created and destroyed by hack/cluster-e2e.sh on every run.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: agb-cluster-e2e
+nodes:
+  - role: control-plane

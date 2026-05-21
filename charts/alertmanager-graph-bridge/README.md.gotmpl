@@ -1,0 +1,26 @@
+{{ template "chart.header" . }}
+{{ template "chart.badgesSection" . }}
+{{ template "chart.description" . }}
+
+## Overview
+
+This chart deploys alertmanager-graph-bridge, which receives Alertmanager webhook payloads, renders them into HTML e-mails and delivers them through Microsoft 365 using the Graph API with OAuth2 client credentials.
+
+For the full documentation visit the [getting started guide](https://github.com/slauger/alertmanager-graph-bridge/blob/main/docs/getting-started.md).
+
+## Prerequisites
+
+- Kubernetes 1.22+
+- Helm 3.14+
+- A Microsoft Entra app registration with `Mail.Send` permission
+
+## Installation
+
+```bash
+helm install alertmanager-graph-bridge oci://ghcr.io/slauger/charts/alertmanager-graph-bridge
+```
+
+{{ template "chart.maintainersSection" . }}
+{{ template "chart.sourcesSection" . }}
+{{ template "chart.valuesSection" . }}
+{{ template "helm-docs.versionFooter" . }}

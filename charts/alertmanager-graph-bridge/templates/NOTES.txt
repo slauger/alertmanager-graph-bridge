@@ -1,0 +1,29 @@
+alertmanager-graph-bridge has been deployed.
+
+Release:   {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Image:     {{ include "alertmanager-graph-bridge.image" . }}
+
+The webhook endpoint is reachable in-cluster at:
+
+  http://{{ include "alertmanager-graph-bridge.fullname" . }}.{{ .Release.Namespace }}.svc:{{ .Values.service.port }}/api/v1/alerts
+
+Point your Alertmanager webhook_config at that URL:
+
+  receivers:
+    - name: graph-bridge
+      webhook_configs:
+        - url: http://{{ include "alertmanager-graph-bridge.fullname" . }}.{{ .Release.Namespace }}.svc:{{ .Values.service.port }}/api/v1/alerts
+
+{{- if not .Values.config.mail.from }}
+
+WARNING: config.mail.from is empty. Set it to the sender mailbox address.
+{{- end }}
+{{- if not .Values.config.mail.to }}
+
+WARNING: config.mail.to is empty. Set at least one default recipient.
+{{- end }}
+{{- if and (not .Values.existingSecret) (not .Values.secret.clientSecret) }}
+
+WARNING: secret.clientSecret is empty. Set it (or use existingSecret) so the bridge can authenticate against the Microsoft Graph API.
+{{- end }}

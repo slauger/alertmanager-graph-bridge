@@ -1,0 +1,31 @@
+name: helm
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.18.4
+
+      - name: helm lint
+        run: helm lint charts/alertmanager-graph-bridge
+
+      - name: helm template
+        run: helm template test charts/alertmanager-graph-bridge
+
+      - name: Install helm-unittest plugin
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest
+
+      - name: helm unittest
+        run: helm unittest charts/alertmanager-graph-bridge

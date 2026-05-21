@@ -1,0 +1,53 @@
+# Orchestrator image for the full-chain cluster end-to-end test.
+#
+# It bundles the tooling needed by hack/cluster-e2e.sh -- kind, kubectl, helm,
+# the Docker CLI and the Go toolchain -- so the test can be run with nothing
+# but Docker installed on the host. The repository is bind-mounted at
+# /workspace and the host Docker socket is shared at run time; see the
+# `cluster-e2e` Makefile target.
+#
+# renovate: datasource=docker depName=golang
+ARG GO_VERSION=1.26
+
+FROM golang:${GO_VERSION}
+
+# renovate: datasource=github-releases depName=kubernetes-sigs/kind
+ARG KIND_VERSION=v0.27.0
+# renovate: datasource=github-releases depName=kubernetes/kubernetes
+ARG KUBECTL_VERSION=v1.32.0
+# renovate: datasource=github-releases depName=helm/helm
+ARG HELM_VERSION=v3.17.0
+# renovate: datasource=docker depName=docker
+ARG DOCKER_CLI_VERSION=27.5.1
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Install kind, kubectl, helm and the Docker CLI as static binaries.
+RUN set -eux; \
+    arch="$(dpkg --print-architecture)"; \
+    case "$arch" in \
+      amd64) k8sarch=amd64; dockerarch=x86_64 ;; \
+      arm64) k8sarch=arm64; dockerarch=aarch64 ;; \
+      *) echo "unsupported architecture: $arch" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL -o /usr/local/bin/kind \
+      "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-${k8sarch}"; \
+    curl -fsSL -o /usr/local/bin/kubectl \
+      "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${k8sarch}/kubectl"; \
+    curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${k8sarch}.tar.gz" \
+      | tar -xz -C /tmp; \
+    mv "/tmp/linux-${k8sarch}/helm" /usr/local/bin/helm; \
+    curl -fsSL "https://download.docker.com/linux/static/stable/${dockerarch}/docker-${DOCKER_CLI_VERSION}.tgz" \
+      | tar -xz -C /tmp; \
+    mv /tmp/docker/docker /usr/local/bin/docker; \
+    chmod +x /usr/local/bin/kind /usr/local/bin/kubectl \
+             /usr/local/bin/helm /usr/local/bin/docker; \
+    rm -rf "/tmp/linux-${k8sarch}" /tmp/docker; \
+    kind --version && kubectl version --client && helm version && docker --version
+
+WORKDIR /workspace
+
+# The repository (including this script) is bind-mounted at run time. Invoking
+# bash explicitly avoids depending on the script's executable bit, which a
+# Windows bind mount may not carry.
+ENTRYPOINT ["bash", "/workspace/hack/cluster-e2e.sh"]

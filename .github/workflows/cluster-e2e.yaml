@@ -1,0 +1,66 @@
+name: cluster-e2e
+
+# Runs the full-chain cluster end-to-end test: an ephemeral kind cluster with a
+# real Prometheus and Alertmanager drives an alert all the way to a live
+# Microsoft Graph sendMail. Trigger it manually once the e2e secrets are
+# configured (see docs/cluster-e2e-testing.md). It sends a real e-mail.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cluster-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify e2e secrets are configured
+        env:
+          AGB_AZURE_TENANTID: ${{ secrets.AGB_AZURE_TENANTID }}
+          AGB_AZURE_CLIENTID: ${{ secrets.AGB_AZURE_CLIENTID }}
+          AGB_AZURE_CLIENTSECRET: ${{ secrets.AGB_AZURE_CLIENTSECRET }}
+          E2E_MAIL_FROM: ${{ secrets.E2E_MAIL_FROM }}
+          E2E_MAIL_TO: ${{ secrets.E2E_MAIL_TO }}
+        run: |
+          missing=0
+          for name in AGB_AZURE_TENANTID AGB_AZURE_CLIENTID AGB_AZURE_CLIENTSECRET E2E_MAIL_FROM E2E_MAIL_TO; do
+            if [ -z "${!name}" ]; then
+              echo "::error::repository secret ${name} is not set"
+              missing=1
+            fi
+          done
+          [ "${missing}" -eq 0 ]
+
+      - name: Lint orchestrator Containerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: images/cluster-e2e/Containerfile
+          config: .hadolint.yaml
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install kind
+        uses: helm/kind-action@v1
+        with:
+          install_only: true
+          version: v0.27.0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.17.0
+
+      - name: Run cluster e2e test
+        env:
+          AGB_AZURE_TENANTID: ${{ secrets.AGB_AZURE_TENANTID }}
+          AGB_AZURE_CLIENTID: ${{ secrets.AGB_AZURE_CLIENTID }}
+          AGB_AZURE_CLIENTSECRET: ${{ secrets.AGB_AZURE_CLIENTSECRET }}
+          E2E_MAIL_FROM: ${{ secrets.E2E_MAIL_FROM }}
+          E2E_MAIL_TO: ${{ secrets.E2E_MAIL_TO }}
+        run: ./hack/cluster-e2e.sh

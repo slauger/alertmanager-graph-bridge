@@ -1,0 +1,13 @@
+.git
+.github
+bin
+dist
+site
+charts
+docs
+hack
+images
+*.md
+cover.out
+*.tgz
+*.test

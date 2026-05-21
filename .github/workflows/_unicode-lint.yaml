@@ -1,0 +1,17 @@
+name: unicode-lint
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  unicode-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect suspicious Unicode characters
+        run: ./hack/unicode-lint.sh

@@ -1,0 +1,23 @@
+# Helm values for installing the bridge into the cluster e2e kind cluster.
+#
+# Only the cluster-local settings live here. The Azure/mail identity values and
+# secrets are supplied by hack/cluster-e2e.sh via --set from e2e.env, and the
+# subjectPrefix is set to a unique per-run marker.
+replicaCount: 1
+
+image:
+  repository: alertmanager-graph-bridge
+  # Matches the image tag built and `kind load`-ed by hack/cluster-e2e.sh.
+  tag: cluster-e2e
+  # The image is loaded straight into the kind nodes; never pull it.
+  pullPolicy: Never
+
+config:
+  server:
+    port: 8080
+  mail:
+    template: modern
+  log:
+    # Verbose logging makes a failed run easy to diagnose with `kubectl logs`.
+    level: debug
+    format: json

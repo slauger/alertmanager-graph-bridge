@@ -1,0 +1,61 @@
+name: e2e
+
+# Runs the end-to-end tests against the live Microsoft Graph API. Trigger it
+# manually once the e2e secrets are configured (see docs/e2e-testing.md).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify e2e secrets are configured
+        env:
+          AGB_AZURE_TENANTID: ${{ secrets.AGB_AZURE_TENANTID }}
+          AGB_AZURE_CLIENTID: ${{ secrets.AGB_AZURE_CLIENTID }}
+          AGB_AZURE_CLIENTSECRET: ${{ secrets.AGB_AZURE_CLIENTSECRET }}
+          E2E_MAIL_FROM: ${{ secrets.E2E_MAIL_FROM }}
+          E2E_MAIL_TO: ${{ secrets.E2E_MAIL_TO }}
+        run: |
+          missing=0
+          for name in AGB_AZURE_TENANTID AGB_AZURE_CLIENTID AGB_AZURE_CLIENTSECRET E2E_MAIL_FROM E2E_MAIL_TO; do
+            if [ -z "${!name}" ]; then
+              echo "::error::repository secret ${name} is not set"
+              missing=1
+            fi
+          done
+          [ "${missing}" -eq 0 ]
+
+      - name: Lint e2e Containerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: images/alertmanager-graph-bridge-e2e/Containerfile
+          config: .hadolint.yaml
+
+      - name: Build e2e image
+        run: |
+          docker build \
+            -f images/alertmanager-graph-bridge-e2e/Containerfile \
+            -t alertmanager-graph-bridge-e2e:ci .
+
+      - name: Run e2e tests against live Microsoft Graph
+        env:
+          AGB_AZURE_TENANTID: ${{ secrets.AGB_AZURE_TENANTID }}
+          AGB_AZURE_CLIENTID: ${{ secrets.AGB_AZURE_CLIENTID }}
+          AGB_AZURE_CLIENTSECRET: ${{ secrets.AGB_AZURE_CLIENTSECRET }}
+          E2E_MAIL_FROM: ${{ secrets.E2E_MAIL_FROM }}
+          E2E_MAIL_TO: ${{ secrets.E2E_MAIL_TO }}
+        run: |
+          docker run --rm \
+            -e AGB_AZURE_TENANTID \
+            -e AGB_AZURE_CLIENTID \
+            -e AGB_AZURE_CLIENTSECRET \
+            -e E2E_MAIL_FROM \
+            -e E2E_MAIL_TO \
+            alertmanager-graph-bridge-e2e:ci -test.v

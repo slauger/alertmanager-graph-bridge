@@ -1,0 +1,29 @@
+{
+  "version": "4",
+  "groupKey": "{}:{alertname=\"DiskSpaceLow\"}",
+  "truncatedAlerts": 0,
+  "status": "resolved",
+  "receiver": "graph-bridge",
+  "groupLabels": { "alertname": "DiskSpaceLow" },
+  "commonLabels": { "alertname": "DiskSpaceLow", "severity": "critical" },
+  "commonAnnotations": { "summary": "Disk space recovered" },
+  "externalURL": "http://alertmanager.example.com",
+  "alerts": [
+    {
+      "status": "resolved",
+      "labels": {
+        "alertname": "DiskSpaceLow",
+        "instance": "node1:9100",
+        "severity": "critical"
+      },
+      "annotations": {
+        "summary": "Disk space low on node1",
+        "description": "Free disk space dropped below 10%"
+      },
+      "startsAt": "2026-05-20T07:00:00.000Z",
+      "endsAt": "2026-05-20T08:45:00.000Z",
+      "generatorURL": "http://prometheus.example.com/graph?g0.expr=disk",
+      "fingerprint": "fff000aaa111"
+    }
+  ]
+}

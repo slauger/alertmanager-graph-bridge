@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  unicode-lint:
+    uses: ./.github/workflows/_unicode-lint.yaml
+
+  go-checks:
+    uses: ./.github/workflows/_go.yaml
+
+  helm-checks:
+    uses: ./.github/workflows/_helm.yaml
+
+  shellcheck:
+    uses: ./.github/workflows/_shellcheck.yaml
+
+  container-build:
+    needs:
+      - unicode-lint
+      - go-checks
+      - helm-checks
+      - shellcheck
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: ./.github/workflows/_container-build.yaml
+    with:
+      image: ghcr.io/slauger/alertmanager-graph-bridge
+      dockerfile: images/alertmanager-graph-bridge/Containerfile
+      context: .
+      push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+      tag: develop
+      sign: false
