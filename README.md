@@ -1,12 +1,4 @@
-<div align="center">
-
 # alertmanager-graph-bridge
-
-**A lightweight bridge between Prometheus Alertmanager and the Microsoft Graph API**
-
-Receive Alertmanager webhooks, turn them into tidy HTML e-mails, and deliver them through Microsoft 365 with OAuth2 - no SMTP AUTH required.
-
-_Shipped as the `alertmanager-graph-bridge` binary, container image and Helm chart._
 
 [![CI](https://github.com/slauger/alertmanager-graph-bridge/actions/workflows/ci.yaml/badge.svg)](https://github.com/slauger/alertmanager-graph-bridge/actions/workflows/ci.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/slauger/alertmanager-graph-bridge)](https://goreportcard.com/report/github.com/slauger/alertmanager-graph-bridge)
@@ -14,9 +6,7 @@ _Shipped as the `alertmanager-graph-bridge` binary, container image and Helm cha
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Container](https://img.shields.io/badge/ghcr.io-alertmanager--graph--bridge-blue?logo=docker)](https://github.com/slauger/alertmanager-graph-bridge/pkgs/container/alertmanager-graph-bridge)
 
-</div>
-
----
+A lightweight bridge between Prometheus Alertmanager and the Microsoft Graph API. Receive Alertmanager webhooks, turn them into tidy HTML e-mails, and deliver them through Microsoft 365 with OAuth2 - no SMTP AUTH required.
 
 ## Features
 
