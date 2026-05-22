@@ -95,7 +95,9 @@ jobs:
           file: ${{ inputs.dockerfile }}
           platforms: ${{ inputs.platforms }}
           push: ${{ inputs.push }}
-          tags: ${{ inputs.image }}:${{ steps.meta.outputs.tag }}
+          tags: |
+            ${{ inputs.image }}:${{ steps.meta.outputs.tag }}
+            ${{ inputs.image }}:latest
           build-args: |
             VERSION=${{ steps.meta.outputs.tag }}
           cache-from: type=gha
