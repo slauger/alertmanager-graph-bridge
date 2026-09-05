@@ -7,7 +7,7 @@
 # `cluster-e2e` Makefile target.
 #
 # renovate: datasource=docker depName=golang
-ARG GO_VERSION=1.26
+ARG GO_VERSION=1.27
 
 FROM golang:${GO_VERSION}
 
