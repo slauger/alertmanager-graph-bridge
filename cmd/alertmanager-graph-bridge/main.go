@@ -13,12 +13,12 @@ import (
 	"runtime"
 	"syscall"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/slauger/alertmanager-graph-bridge/internal/branding"
 	"github.com/slauger/alertmanager-graph-bridge/internal/config"
 	"github.com/slauger/alertmanager-graph-bridge/internal/graph"
 	"github.com/slauger/alertmanager-graph-bridge/internal/mail"
 	"github.com/slauger/alertmanager-graph-bridge/internal/server"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 // version is the build version, overridden at link time with
@@ -27,9 +27,9 @@ var version = "dev"
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
-	if err := run(ctx, os.Args[1:]); err != nil {
+	err := run(ctx, os.Args[1:])
+	stop()
+	if err != nil {
 		fmt.Fprintln(os.Stderr, "fatal:", err)
 		os.Exit(1)
 	}

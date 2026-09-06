@@ -92,8 +92,7 @@ func (s *Server) deliver(ctx context.Context, g mail.Group) error {
 
 // classifyError maps a send error to a metric reason label.
 func classifyError(err error) string {
-	var apiErr *graph.APIError
-	if errors.As(err, &apiErr) {
+	if apiErr, ok := errors.AsType[*graph.APIError](err); ok {
 		switch {
 		case apiErr.StatusCode == http.StatusTooManyRequests:
 			return "graph_429"

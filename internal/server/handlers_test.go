@@ -8,9 +8,9 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/slauger/alertmanager-graph-bridge/internal/config"
 	"github.com/slauger/alertmanager-graph-bridge/internal/graph"
-	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
 func TestHandleAlerts(t *testing.T) {

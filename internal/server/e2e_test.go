@@ -10,10 +10,10 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/slauger/alertmanager-graph-bridge/internal/config"
 	"github.com/slauger/alertmanager-graph-bridge/internal/graph"
 	"github.com/slauger/alertmanager-graph-bridge/internal/mail"
-	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
 // recorder captures Graph sendMail request bodies in a race-safe way.
@@ -169,7 +169,7 @@ func TestEndToEndSplitsRecipients(t *testing.T) {
 		if err := json.Unmarshal(raw, &env); err != nil {
 			t.Fatalf("decoding graph request: %v", err)
 		}
-		var addrs []string
+		addrs := make([]string, 0, len(env.Message.ToRecipients))
 		for _, r := range env.Message.ToRecipients {
 			addrs = append(addrs, r.EmailAddress.Address)
 		}

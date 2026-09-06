@@ -7,9 +7,9 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/slauger/alertmanager-graph-bridge/internal/graph"
 	"github.com/slauger/alertmanager-graph-bridge/internal/mail"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 // fakeSender is a graph.Sender test double that records calls.

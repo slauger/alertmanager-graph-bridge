@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/slauger/alertmanager-graph-bridge/internal/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/slauger/alertmanager-graph-bridge/internal/config"
 )
 
 func TestEnvOr(t *testing.T) {

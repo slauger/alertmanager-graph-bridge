@@ -14,11 +14,11 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/slauger/alertmanager-graph-bridge/internal/config"
 	"github.com/slauger/alertmanager-graph-bridge/internal/graph"
 	"github.com/slauger/alertmanager-graph-bridge/internal/mail"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const (

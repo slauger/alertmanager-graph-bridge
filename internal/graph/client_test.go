@@ -269,8 +269,7 @@ func TestSendMailContextCancelled(t *testing.T) {
 	if err == nil {
 		t.Fatal("SendMail() error = nil, want context cancellation error")
 	}
-	var apiErr *APIError
-	if errors.As(err, &apiErr) {
+	if _, ok := errors.AsType[*APIError](err); ok {
 		t.Errorf("error = %v, want a transport error not *APIError", err)
 	}
 }
