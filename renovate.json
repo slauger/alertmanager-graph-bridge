@@ -8,8 +8,7 @@
       "fileMatch": ["images/.+/Containerfile$"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\nARG .*?=(?<currentValue>.*)"
-      ],
-      "extractVersionTemplate": "^v?(?<version>.*)$"
+      ]
     }
   ],
   "packageRules": [
@@ -28,7 +27,12 @@
     {
       "matchDatasources": ["docker"],
       "groupName": "container-images"
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
     }
   ],
+  "platformAutomerge": false,
   "postUpdateOptions": ["gomodTidy"]
 }
