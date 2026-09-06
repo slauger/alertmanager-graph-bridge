@@ -35,7 +35,7 @@ jobs:
           [ "${missing}" -eq 0 ]
 
       - name: Lint orchestrator Containerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: images/cluster-e2e/Containerfile
           config: .hadolint.yaml
@@ -54,7 +54,7 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
         with:
-          version: v3.17.0
+          version: v3.21.4
 
       - name: Run cluster e2e test
         env:

@@ -7,16 +7,16 @@
 # `cluster-e2e` Makefile target.
 #
 # renovate: datasource=docker depName=golang
-ARG GO_VERSION=1.26
+ARG GO_VERSION=1.27
 
 FROM golang:${GO_VERSION}
 
 # renovate: datasource=github-releases depName=kubernetes-sigs/kind
-ARG KIND_VERSION=v0.27.0
+ARG KIND_VERSION=v0.33.0
 # renovate: datasource=github-releases depName=kubernetes/kubernetes
-ARG KUBECTL_VERSION=v1.32.0
+ARG KUBECTL_VERSION=v1.37.0
 # renovate: datasource=github-releases depName=helm/helm
-ARG HELM_VERSION=v3.17.0
+ARG HELM_VERSION=v3.21.4
 # renovate: datasource=docker depName=docker
 ARG DOCKER_CLI_VERSION=27.5.1
 
