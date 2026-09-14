@@ -16,7 +16,7 @@ ARG KIND_VERSION=v0.33.0
 # renovate: datasource=github-releases depName=kubernetes/kubernetes
 ARG KUBECTL_VERSION=v1.37.0
 # renovate: datasource=github-releases depName=helm/helm
-ARG HELM_VERSION=v3.21.4
+ARG HELM_VERSION=v3.22.0
 # renovate: datasource=docker depName=docker
 ARG DOCKER_CLI_VERSION=27.5.1
 
