@@ -1,7 +1,7 @@
 # renovate: datasource=docker depName=golang
 ARG GO_VERSION=1.27
 # renovate: datasource=docker depName=registry.access.redhat.com/ubi9/ubi-minimal
-ARG UBI_VERSION=9.8-1789460941
+ARG UBI_VERSION=9.8-1789546276
 
 FROM golang:${GO_VERSION} AS builder
 
