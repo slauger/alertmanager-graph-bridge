@@ -61,6 +61,29 @@ jobs:
       tag: ${{ needs.semantic-release.outputs.version }}
       sign: true
 
+  release-assets:
+    needs:
+      - semantic-release
+      - container
+    if: needs.semantic-release.outputs.version != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download SBOM artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: sbom-*
+          path: sbom
+          merge-multiple: true
+
+      - name: Upload SBOMs to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.semantic-release.outputs.version }}
+        run: gh release upload "v${VERSION}" sbom/*.json
+
   helm-release:
     needs:
       - semantic-release

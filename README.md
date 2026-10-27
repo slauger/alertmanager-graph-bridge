@@ -135,6 +135,36 @@ ghcr.io/slauger/alertmanager-graph-bridge
 
 The image is a single static binary on `ubi9/ubi-minimal`, running rootless as UID `1001`.
 
+### Supply chain security
+
+Released images are signed with [cosign](https://docs.sigstore.dev/cosign/) keyless signing (Sigstore OIDC). The signature is made against the image digest, so the version tag and `:latest` are covered by the same signature:
+
+```bash
+cosign verify ghcr.io/slauger/alertmanager-graph-bridge:<version> \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --certificate-identity-regexp 'github\.com/slauger/alertmanager-graph-bridge'
+```
+
+Each architecture carries an unsigned SPDX SBOM attached by BuildKit and a CycloneDX SBOM generated with [syft](https://github.com/anchore/syft), attached as a signed cosign attestation (e.g. for [Dependency-Track](https://dependencytrack.org/)). An SBOM describes a single architecture, so the attestation is attached to the platform image rather than the multi-arch tag. `cosign verify-attestation` has no `--platform` flag; resolve the platform digest first:
+
+```bash
+DIGEST=$(crane digest --platform linux/amd64 ghcr.io/slauger/alertmanager-graph-bridge:<version>)
+cosign verify-attestation "ghcr.io/slauger/alertmanager-graph-bridge@${DIGEST}" \
+  --type cyclonedx \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --certificate-identity-regexp 'github\.com/slauger/alertmanager-graph-bridge' \
+  | jq -r '.payload' | base64 -d | jq '.predicate' > sbom.cdx.json
+```
+
+Every [GitHub release](https://github.com/slauger/alertmanager-graph-bridge/releases) also carries the SBOMs as assets, one file per architecture and format:
+
+```text
+alertmanager-graph-bridge-<version>-linux-amd64.cdx.json    # CycloneDX
+alertmanager-graph-bridge-<version>-linux-amd64.spdx.json   # SPDX
+alertmanager-graph-bridge-<version>-linux-arm64.cdx.json
+alertmanager-graph-bridge-<version>-linux-arm64.spdx.json
+```
+
 ## Helm Chart
 
 The Helm chart lives in [`charts/alertmanager-graph-bridge`](charts/alertmanager-graph-bridge) and is published as an OCI artifact to `ghcr.io/slauger/charts`. It supports `ServiceMonitor` and `Ingress` resources and can reference an existing `Secret` via `existingSecret`.
