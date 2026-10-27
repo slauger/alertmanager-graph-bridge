@@ -30,3 +30,10 @@ version. You can expect an initial response within a few business days.
 - Configure `server.bearerToken` so the webhook endpoint is authenticated.
 - Restrict which mailboxes the Azure app may send as with an
   [application access policy](https://learn.microsoft.com/en-us/graph/auth-limit-mailbox-access).
+
+## Supply chain
+
+Released container images are signed with cosign using keyless Sigstore
+signing and carry a signed CycloneDX SBOM attestation per architecture. The
+SBOMs are also attached to every GitHub release. Verification commands are in
+the [README](README.md#supply-chain-security).

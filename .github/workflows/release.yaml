@@ -1,7 +1,14 @@
 name: release
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
+
+# Merges in quick succession release one after another, not in parallel.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -60,6 +67,29 @@ jobs:
       push: true
       tag: ${{ needs.semantic-release.outputs.version }}
       sign: true
+
+  release-assets:
+    needs:
+      - semantic-release
+      - container
+    if: needs.semantic-release.outputs.version != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download SBOM artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: sbom-*
+          path: sbom
+          merge-multiple: true
+
+      - name: Upload SBOMs to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.semantic-release.outputs.version }}
+        run: gh release upload "v${VERSION}" sbom/*.json
 
   helm-release:
     needs:
