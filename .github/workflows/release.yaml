@@ -1,7 +1,14 @@
 name: release
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
+
+# Merges in quick succession release one after another, not in parallel.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 permissions:
   contents: read
