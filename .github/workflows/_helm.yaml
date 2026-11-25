@@ -16,7 +16,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v4
         with:
-          version: v3.22.1
+          version: v4.3.2
 
       - name: helm lint
         run: helm lint charts/alertmanager-graph-bridge
@@ -24,8 +24,26 @@ jobs:
       - name: helm template
         run: helm template test charts/alertmanager-graph-bridge
 
+      # Helm 4 verifies plugin signatures. The git source has no provenance,
+      # so the plugin is installed from the signed OCI artifact of a pinned
+      # release and checked against the upstream release signing key.
       - name: Install helm-unittest plugin
-        run: helm plugin install https://github.com/helm-unittest/helm-unittest
+        env:
+          # renovate: datasource=github-releases depName=helm-unittest/helm-unittest
+          HELM_UNITTEST_VERSION: "v1.2.1"
+          HELM_UNITTEST_KEY_FINGERPRINT: 853008CD0B0A5A2DA04FF8A5616AD47F65B54AC7
+        run: |
+          GNUPGHOME="$(mktemp -d)"
+          export GNUPGHOME
+          curl -fsSL "https://raw.githubusercontent.com/helm-unittest/helm-unittest/${HELM_UNITTEST_VERSION}/public-key.asc" \
+            | gpg --batch --import
+          if ! gpg --batch --with-colons --fingerprint | grep -q "^fpr:::::::::${HELM_UNITTEST_KEY_FINGERPRINT}:"; then
+            echo "::error::helm-unittest signing key fingerprint does not match ${HELM_UNITTEST_KEY_FINGERPRINT}"
+            exit 1
+          fi
+          gpg --batch --export > "${RUNNER_TEMP}/helm-unittest.gpg"
+          helm plugin install "oci://ghcr.io/helm-unittest/helm-unittest/unittest:${HELM_UNITTEST_VERSION#v}" \
+            --keyring "${RUNNER_TEMP}/helm-unittest.gpg"
 
       - name: helm unittest
         run: helm unittest charts/alertmanager-graph-bridge
