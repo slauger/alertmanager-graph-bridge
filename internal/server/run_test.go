@@ -37,8 +37,10 @@ func TestRunGracefulShutdown(t *testing.T) {
 }
 
 func TestRunReturnsListenError(t *testing.T) {
-	// Occupy a port so the server cannot bind it.
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	// Occupy a port on the wildcard address the server binds to. Occupying
+	// only 127.0.0.1 is not enough on macOS/BSD, where a wildcard bind next
+	// to a loopback listener on the same port succeeds and Run blocks.
+	ln, err := net.Listen("tcp", ":0")
 	if err != nil {
 		t.Fatalf("listen: %v", err)
 	}
