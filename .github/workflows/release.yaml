@@ -25,14 +25,14 @@ jobs:
       version: ${{ steps.semantic.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Create initial tag if missing
         run: |
@@ -102,10 +102,10 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
 
       - name: Set up crane
         uses: imjasonh/setup-crane@v0.7
@@ -118,9 +118,9 @@ jobs:
           helm package charts/alertmanager-graph-bridge \
             --version "${VERSION}" --app-version "${VERSION}"
           echo "${GITHUB_TOKEN}" | helm registry login ghcr.io \
-            --username "${{ github.actor }}" --password-stdin
+            --username "${GITHUB_ACTOR}" --password-stdin
           helm push "alertmanager-graph-bridge-${VERSION}.tgz" \
             oci://ghcr.io/slauger/charts
           crane auth login ghcr.io \
-            --username "${{ github.actor }}" --password "${GITHUB_TOKEN}"
-          crane tag ghcr.io/slauger/charts/alertmanager-graph-bridge:${VERSION} latest
+            --username "${GITHUB_ACTOR}" --password "${GITHUB_TOKEN}"
+          crane tag "ghcr.io/slauger/charts/alertmanager-graph-bridge:${VERSION}" latest

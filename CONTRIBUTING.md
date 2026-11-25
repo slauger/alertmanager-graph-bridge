@@ -15,10 +15,10 @@ make test
 
 ## Workflow
 
-1. Branch off `develop`.
+1. Branch off `main`.
 2. Make your change with accompanying tests.
 3. Run `make ci` and make sure every check passes.
-4. Open a pull request against `develop`.
+4. Open a pull request against `main`. Every merge to `main` is released by semantic-release if it contains a `feat` or `fix` commit.
 
 ## Commit messages
 

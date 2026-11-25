@@ -16,9 +16,9 @@ ARG KIND_VERSION=v0.33.0
 # renovate: datasource=github-releases depName=kubernetes/kubernetes
 ARG KUBECTL_VERSION=v1.37.3
 # renovate: datasource=github-releases depName=helm/helm
-ARG HELM_VERSION=v3.22.1
+ARG HELM_VERSION=v4.3.2
 # renovate: datasource=docker depName=docker
-ARG DOCKER_CLI_VERSION=27.5.1
+ARG DOCKER_CLI_VERSION=29.10.1
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

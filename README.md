@@ -213,7 +213,7 @@ The full site is built with MkDocs and published to GitHub Pages.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow. Commits follow the [Conventional Commits](https://www.conventionalcommits.org/) specification, and releases and the changelog are generated automatically by semantic-release. The bar every change is held to is documented in the [quality criteria](docs/quality.md); security reports go through [SECURITY.md](SECURITY.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow. Commits follow the [Conventional Commits](https://www.conventionalcommits.org/) specification, and releases and their [release notes](https://github.com/slauger/alertmanager-graph-bridge/releases) are generated automatically by semantic-release. The bar every change is held to is documented in the [quality criteria](docs/quality.md); security reports go through [SECURITY.md](SECURITY.md).
 
 ## License
 
