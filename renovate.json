@@ -1,17 +1,39 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "labels": ["dependencies"],
+  "osvVulnerabilityAlerts": true,
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["images/.+/Containerfile$"],
+      "managerFilePatterns": ["/images/.+/Containerfile$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\nARG .*?=(?<currentValue>.*)"
+      ]
+    },
+    {
+      "description": "Tool versions in workflows (FOO_VERSION: \"v1.2.3\"), annotated with a renovate comment",
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\w+_VERSION: \"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "description": "Tool versions in the Makefile (FOO_VERSION ?= v1.2.3), annotated with a renovate comment",
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)Makefile$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\w+_VERSION\\s*\\??=\\s*(?<currentValue>\\S+)"
       ]
     }
   ],
   "packageRules": [
+    {
+      "description": "Wait before proposing new releases (supply chain protection); vulnerability alerts are not delayed",
+      "matchPackageNames": ["*"],
+      "minimumReleaseAge": "3 days"
+    },
     {
       "matchDatasources": ["golang-version"],
       "groupName": "go-version"
