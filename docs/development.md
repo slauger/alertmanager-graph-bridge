@@ -50,5 +50,5 @@ make ci             # run the full check suite
 
 Commit messages follow the
 [Conventional Commits](https://www.conventionalcommits.org/) specification
-(`feat:`, `fix:`, `docs:`, `chore:`, `BREAKING CHANGE:`). Releases and the
-changelog are generated from them by semantic-release.
+(`feat:`, `fix:`, `docs:`, `chore:`, `BREAKING CHANGE:`). Releases and their
+release notes are generated from them by semantic-release.
