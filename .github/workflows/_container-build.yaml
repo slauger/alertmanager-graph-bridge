@@ -74,9 +74,10 @@ jobs:
         id: meta
         env:
           IMAGE: ${{ inputs.image }}
+          TAG: ${{ inputs.tag }}
         run: |
-          if [ -n "${{ inputs.tag }}" ]; then
-            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          if [ -n "${TAG}" ]; then
+            echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           else
             echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
           fi
