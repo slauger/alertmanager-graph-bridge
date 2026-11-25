@@ -2,6 +2,8 @@ BINARY := alertmanager-graph-bridge
 IMAGE := ghcr.io/slauger/alertmanager-graph-bridge
 CHART := charts/alertmanager-graph-bridge
 COVER_THRESHOLD := 80
+# renovate: datasource=go depName=golang.org/x/vuln
+GOVULNCHECK_VERSION ?= v1.10.0
 
 # PRODUCT_NAME overrides the compiled-in brand (see internal/branding). Leave
 # empty to keep the default baked into the source.
@@ -41,7 +43,7 @@ vet:
 	go vet ./...
 
 vulncheck:
-	go run golang.org/x/vuln/cmd/govulncheck@v1.3.0 ./...
+	go run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) ./...
 
 fmt:
 	gofmt -s -w .
